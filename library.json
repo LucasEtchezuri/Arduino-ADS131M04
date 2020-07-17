@@ -4,7 +4,7 @@
   "description": "Arduino Library for ADC ADS131M04.",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/LucasEtchezuri/Arduino-ADS131M04.git"
   },
   "version": "1.0.0", 
   "frameworks": "arduino",
