@@ -3,7 +3,7 @@
 
 # ADS131M02 and ADS131M04 Arduino Library
 
-Arduino lib for the ADS131M04 24-bit Analog to Digital Converter.
+Arduino lib for the  ADS131M02 and ADS131M04 24-bit Analog to Digital Converter.
 
 Mostly based on the work of https://github.com/LucasEtchezuri/Arduino-ADS131M04
 ## Changes to original lib
