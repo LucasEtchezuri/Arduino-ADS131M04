@@ -14,7 +14,6 @@ Mostly based on the work of https://github.com/LucasEtchezuri/Arduino-ADS131M04
 
 
 ## Helpfull Links
-Datasheet = https://www.ti.com/lit/ds/symlink/ads131m04.pdf
+Datasheet = https://www.ti.com/product/ADS131M02
 
-Datasheet = https://www.ti.com/lit/ds/symlink/ads131m02.pdf
-
+Datasheet = https://www.ti.com/product/ADS131M04
