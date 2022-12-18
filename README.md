@@ -7,7 +7,7 @@ Arduino lib for the  ADS131M02 and ADS131M04 24-bit Analog to Digital Converter.
 
 Mostly based on the work of https://github.com/LucasEtchezuri/Arduino-ADS131M04
 ## Changes to original lib
-* modified for ADA131M02 and ADS131M04
+* adaption for ADS131M02 and conditional code parts for ADS131M02 and ADS131M04
 * modified interface for flexible SPI-Port
 * method to change SPI clock 
 * minor changes for speed optimation
