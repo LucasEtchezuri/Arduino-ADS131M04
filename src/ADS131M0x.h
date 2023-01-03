@@ -2,7 +2,7 @@
 #define ADS131M0x_h
 
 #include "Arduino.h"
-#include <Spi.h>
+#include "SPI.h"
 
 // !!! by JG !!!
 #define IS_M02
@@ -56,11 +56,15 @@ struct adcOutput
 #define CMD_WAKEUP 0x0033
 #define CMD_LOCK 0x0555
 #define CMD_UNLOCK 0x0655
-#define CMD_READ_REG 0xA000 // 101a aaaa annn nnnn   a=adress  n=numero de registros-1
+#define CMD_READ_REG 0xA000 // 101a aaaa annn nnnn   a=adress  n=num  regis-1
 #define CMD_WRITE_REG 0x6000
 
 // Responses
+#ifdef IS_M02
+#define RSP_RESET_OK 0xFF22
+#else
 #define RSP_RESET_OK 0xFF24
+#endif
 #define RSP_RESET_NOK 0x0011
 
 // Registers Read Only
@@ -256,6 +260,7 @@ public:
   void begin(SPIClass *port, uint8_t clk_pin, uint8_t miso_pin, uint8_t mosi_pin, uint8_t cs_pin, uint8_t drdy_pin);
   int8_t isDataReadySoft(byte channel);
   bool isDataReady(void);
+  void reset(uint8_t reset_pin); 
   bool isResetStatus(void);
   bool isLockSPI(void);
   bool setDrdyFormat(uint8_t drdyFormat);
@@ -269,10 +274,12 @@ public:
   bool setChannelOffsetCalibration(uint8_t channel, int32_t offset);
   bool setChannelGainCalibration(uint8_t channel, uint32_t gain);
   bool setOsr(uint16_t osr);
-  adcOutput readADC(void);
 
- 
-  void readADCfast(void);
+  uint16_t isResetOK(void);
+  adcOutput readADC(void);
+  int32_t readfastCh0(void);
+
+  void setClockSpeed(uint32_t cspeed);
 
 private:
   uint8_t writeRegister(uint8_t address, uint16_t value);
@@ -281,12 +288,8 @@ private:
 
   uint8_t csPin;
   uint8_t drdyPin;
-  //uint8_t ADS131M04_CLK_PIN;
-  //uint8_t ADS131M04_MISO_PIN;
-  //uint8_t ADS131M04_MOSI_PIN;
-
-  SPIClass *spiPort = NULL;
-  uint32_t spiClockSpeed = 2000000;
+ 
+  SPIClass *spiPort;
+  uint32_t spiClockSpeed = 1000000; // default 1MHz SPI-clock
 };
 #endif
-

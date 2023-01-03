@@ -2,18 +2,27 @@
 #include "ADS131M0x.h"
 #include "SPI.h"
 
+
 #ifdef IS_M02
 #define DO_PRAGMA(x) _Pragma (#x)
 #define INFO(x) DO_PRAGMA(message ("\nHINWEIS: " #x))
-//INFO(by JG: Version for ADS131M02)
+//INFO Version for ADS131M02
 #endif
-
-#define settings SPISettings(4000000, MSBFIRST, SPI_MODE1)
 
 int32_t ADS131M0x::val32Ch0 = 0x7FFFFF;
 
 ADS131M0x::ADS131M0x()
 {
+}
+
+/**
+ * @brief Set SPI speed (call bevor "begin" to change default 2MHz)
+ *
+ * @param cspeed value in Hz
+ */
+void ADS131M0x::setClockSpeed(uint32_t cspeed)
+{
+  spiClockSpeed = cspeed;
 }
 
 uint8_t ADS131M0x::writeRegister(uint8_t address, uint16_t value)
@@ -150,21 +159,40 @@ uint16_t ADS131M0x::readRegister(uint8_t address)
   return data;
 }
 
-void ADS131M0x::begin(SPIClass *port, uint8_t clk_pin, uint8_t miso_pin, uint8_t mosi_pin, uint8_t cs_pin, uint8_t drdy_pin)
+/// @brief Hardware reset (reset low activ) 
+/// @param reset_pin 
+void ADS131M0x::reset(uint8_t reset_pin)
+{
+  pinMode(reset_pin, OUTPUT);
+  digitalWrite(reset_pin, HIGH);
+  delay(100);
+  digitalWrite(reset_pin, LOW);
+  delay(100);
+  digitalWrite(reset_pin, HIGH);
+  delay(1);
+}
+
+uint16_t ADS131M0x::isResetOK(void)
+{
+  return (readRegister(CMD_RESET) );
+}                                       
+
+    void
+    ADS131M0x::begin(SPIClass *port, uint8_t clk_pin, uint8_t miso_pin, uint8_t mosi_pin, uint8_t cs_pin, uint8_t drdy_pin)
 {
   // Set pins up
-  
   csPin = cs_pin;
   drdyPin = drdy_pin;
- 
-  spiPort->begin(clk_pin, miso_pin, mosi_pin);
+  spiPort = port;
+  
+  spiPort->begin(clk_pin, miso_pin, mosi_pin, cs_pin); // SCLK, MISO, MOSI, SS
+  SPISettings settings(spiClockSpeed, SPI_MSBFIRST, SPI_MODE1);
   spiPort->beginTransaction(settings);
-  // Configure chip select as an output
+  delay(1);
+  
   pinMode(csPin, OUTPUT);
   digitalWrite(csPin,HIGH); // CS HIGH --> not selected
-
-  // Configure DRDY as as input
-  pinMode(drdyPin, INPUT);
+  pinMode(drdyPin, INPUT);  // DRDY Input
 }
 
 int8_t ADS131M0x::isDataReadySoft(byte channel)
@@ -189,6 +217,8 @@ int8_t ADS131M0x::isDataReadySoft(byte channel)
 #endif
  return -1;
 }
+
+
 
 bool ADS131M0x::isResetStatus(void)
 {
@@ -432,8 +462,10 @@ bool ADS131M0x::isDataReady()
   return true;
 }
 
-// read only ch0 
-void ADS131M0x::readADCfast(void)
+/// @brief Read c0 
+/// @param  
+/// @return ch0 (int32)
+int32_t ADS131M0x::readfastCh0(void)
 {
   uint8_t x = 0;
   uint8_t x2 = 0;
@@ -489,9 +521,12 @@ void ADS131M0x::readADCfast(void)
   NOP();
   digitalWrite(csPin, HIGH);
 
-  return;
+  return val32Ch0;
 }
 
+/// @brief Read ADC port (all Ports)
+/// @param  
+/// @return 
 adcOutput ADS131M0x::readADC(void)
 {
   uint8_t x = 0;
@@ -580,4 +615,3 @@ adcOutput ADS131M0x::readADC(void)
 
   return res;
 }
-
