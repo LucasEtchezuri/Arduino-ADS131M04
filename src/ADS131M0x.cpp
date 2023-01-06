@@ -3,6 +3,7 @@
 #include "SPI.h"
 
 
+
 #ifdef IS_M02
 #define DO_PRAGMA(x) _Pragma (#x)
 #define INFO(x) DO_PRAGMA(message ("\nHINWEIS: " #x))
@@ -11,6 +12,10 @@
 
 int32_t ADS131M0x::val32Ch0 = 0x7FFFFF;
 
+/**
+ * @brief Construct a new ADS131M0x::ADS131M0x object
+ * 
+ */
 ADS131M0x::ADS131M0x()
 {
 }
@@ -25,6 +30,13 @@ void ADS131M0x::setClockSpeed(uint32_t cspeed)
   spiClockSpeed = cspeed;
 }
 
+/**
+ * @brief Write to ADC131M01 or ADC131M04 register
+ * 
+ * @param address 
+ * @param value 
+ * @return uint8_t 
+ */
 uint8_t ADS131M0x::writeRegister(uint8_t address, uint16_t value)
 {
   uint16_t res;
@@ -89,24 +101,12 @@ uint8_t ADS131M0x::writeRegister(uint8_t address, uint16_t value)
   return 0;
 }
 
-// Write a value to the register, applying the mask to touch only the necessary bits.
-// It does not carry out the shift of bits (shift), it is necessary to pass the shifted value to the correct position
-void ADS131M0x::writeRegisterMasked(uint8_t address, uint16_t value, uint16_t mask)
-{
- 
-   // Read the current content of the register
-  uint16_t register_contents = readRegister(address);
-
-  // Change the mask bit by bit (it remains 1 in the bits that must not be touched and 0 in the bits to be modified)
-  // An AND is performed with the current content of the record. "0" remain in the part to be modified
-  register_contents = register_contents & ~mask;
-
- // OR is made with the value to load in the registry. value must be in the correct position (shitf)
-  register_contents = register_contents | value;
-
-  writeRegister(address, register_contents);
-}
-
+/**
+ * @brief 
+ *
+ * @param address
+ * @return uint16_t
+ */
 uint16_t ADS131M0x::readRegister(uint8_t address)
 {
   uint16_t cmd;
@@ -117,7 +117,6 @@ uint16_t ADS131M0x::readRegister(uint8_t address)
   digitalWrite(csPin, LOW);
   delayMicroseconds(1);
 
-  //data = spiPort->transfer16(cmd);
   spiPort->transfer16(cmd);
   spiPort->transfer(0x00);
 
@@ -127,10 +126,10 @@ uint16_t ADS131M0x::readRegister(uint8_t address)
   spiPort->transfer16(0x0000);
   spiPort->transfer(0x00);
 
-  spiPort->transfer16(0x0000); 
+  spiPort->transfer16(0x0000);
   spiPort->transfer(0x00);
 #ifndef IS_M02
-  spiPort->transfer16(0x0000); 
+  spiPort->transfer16(0x0000);
   spiPort->transfer(0x00);
 
   spiPort->transfer16(0x0000);
@@ -139,16 +138,16 @@ uint16_t ADS131M0x::readRegister(uint8_t address)
   data = spiPort->transfer16(0x0000);
   spiPort->transfer(0x00);
 
-  spiPort->transfer16(0x0000); 
+  spiPort->transfer16(0x0000);
   spiPort->transfer(0x00);
 
-  spiPort->transfer16(0x0000); 
+  spiPort->transfer16(0x0000);
   spiPort->transfer(0x00);
 
-  spiPort->transfer16(0x0000); 
+  spiPort->transfer16(0x0000);
   spiPort->transfer(0x00);
 #ifndef IS_M02
-  spiPort->transfer16(0x0000); 
+  spiPort->transfer16(0x0000);
   spiPort->transfer(0x00);
 
   spiPort->transfer16(0x0000);
@@ -157,6 +156,26 @@ uint16_t ADS131M0x::readRegister(uint8_t address)
   delayMicroseconds(1);
   digitalWrite(csPin, HIGH);
   return data;
+}
+
+/**
+ * @brief Write a value to the register, applying the mask to touch only the necessary bits.
+ * It does not carry out the shift of bits (shift), it is necessary to pass the shifted value to the correct position
+ *
+ * @param address
+ * @param value
+ * @param mask
+ */
+void ADS131M0x::writeRegisterMasked(uint8_t address, uint16_t value, uint16_t mask)
+{
+  //Read the current content of the register
+  uint16_t register_contents = readRegister(address);
+  // Change the mask bit by bit (it remains 1 in the bits that must not be touched and 0 in the bits to be modified)
+  // An AND is performed with the current content of the record. "0" remain in the part to be modified
+  register_contents = register_contents & ~mask;
+ // OR is made with the value to load in the registry. value must be in the correct position (shitf)
+  register_contents = register_contents | value;
+  writeRegister(address, register_contents);
 }
 
 /// @brief Hardware reset (reset low activ) 
@@ -172,13 +191,29 @@ void ADS131M0x::reset(uint8_t reset_pin)
   delay(1);
 }
 
+/**
+ * @brief read status cmd-register
+ * 
+ * @return uint16_t 
+ */
 uint16_t ADS131M0x::isResetOK(void)
 {
   return (readRegister(CMD_RESET) );
-}                                       
+}
 
-    void
-    ADS131M0x::begin(SPIClass *port, uint8_t clk_pin, uint8_t miso_pin, uint8_t mosi_pin, uint8_t cs_pin, uint8_t drdy_pin)
+/**
+ * @brief basic initialisation,  
+ * call '.SetClockSpeed' before to set custom SPI-Clock (default=1MHz), 
+ * call '.reset' to make extra hardware-reset (optional)
+ *
+ * @param port      Pointer to SPIClass object
+ * @param clk_pin
+ * @param miso_pin
+ * @param mosi_pin
+ * @param cs_pin
+ * @param drdy_pin
+ */
+void ADS131M0x::begin(SPIClass *port, uint8_t clk_pin, uint8_t miso_pin, uint8_t mosi_pin, uint8_t cs_pin, uint8_t drdy_pin)
 {
   // Set pins up
   csPin = cs_pin;
@@ -195,6 +230,12 @@ uint16_t ADS131M0x::isResetOK(void)
   pinMode(drdyPin, INPUT);  // DRDY Input
 }
 
+/**
+ * @brief software test of ADC data is ready
+ * 
+ * @param channel 
+ * @return int8_t 
+ */
 int8_t ADS131M0x::isDataReadySoft(byte channel)
 {
   if (channel == 0)
@@ -219,17 +260,35 @@ int8_t ADS131M0x::isDataReadySoft(byte channel)
 }
 
 
-
+/**
+ * @brief read reset status (see datasheet)
+ * 
+ * @return true 
+ * @return false 
+ */
 bool ADS131M0x::isResetStatus(void)
 {
   return (readRegister(REG_STATUS) & REGMASK_STATUS_RESET);
 }
 
+/**
+ * @brief read locked status (see datasheet)
+ *
+ * @return true
+ * @return false
+ */
 bool ADS131M0x::isLockSPI(void)
 {
   return (readRegister(REG_STATUS) & REGMASK_STATUS_LOCK);
 }
 
+/**
+ * @brief set DRDY format (see datasheet)
+ * 
+ * @param drdyFormat 
+ * @return true 
+ * @return false 
+ */
 bool ADS131M0x::setDrdyFormat(uint8_t drdyFormat)
 {
   if (drdyFormat > 1)
@@ -243,6 +302,13 @@ bool ADS131M0x::setDrdyFormat(uint8_t drdyFormat)
   }
 }
 
+/**
+ * @brief set DRDY state (see datasheet)
+ * 
+ * @param drdyState 
+ * @return true 
+ * @return false 
+ */
 bool ADS131M0x::setDrdyStateWhenUnavailable(uint8_t drdyState)
 {
   if (drdyState > 1)
@@ -256,6 +322,13 @@ bool ADS131M0x::setDrdyStateWhenUnavailable(uint8_t drdyState)
   }
 }
 
+/**
+ * @brief set power mode (see datasheet)
+ * 
+ * @param powerMode 
+ * @return true 
+ * @return false 
+ */
 bool ADS131M0x::setPowerMode(uint8_t powerMode)
 {
   if (powerMode > 3)
@@ -269,6 +342,13 @@ bool ADS131M0x::setPowerMode(uint8_t powerMode)
   }
 }
 
+/**
+ * @brief set OSR digital filter (see datasheet)
+ * 
+ * @param osr 
+ * @return true 
+ * @return false 
+ */
 bool ADS131M0x::setOsr(uint16_t osr)
 {
   if (osr > 7)
@@ -282,6 +362,14 @@ bool ADS131M0x::setOsr(uint16_t osr)
   }
 }
 
+/**
+ * @brief input channel enable 
+ * 
+ * @param channel 
+ * @param enable 
+ * @return true 
+ * @return false 
+ */
 bool ADS131M0x::setChannelEnable(uint8_t channel, uint16_t enable)
 {
   if (channel > 3)
@@ -313,6 +401,14 @@ bool ADS131M0x::setChannelEnable(uint8_t channel, uint16_t enable)
   return false;
 }
 
+/**
+ * @brief set gain per channel (see datasheet)
+ * 
+ * @param channel 
+ * @param pga 
+ * @return true 
+ * @return false 
+ */
 bool ADS131M0x::setChannelPGA(uint8_t channel, uint16_t pga)
 {
   if (channel == 0)
@@ -340,7 +436,7 @@ bool ADS131M0x::setChannelPGA(uint8_t channel, uint16_t pga)
   return false;
 }
 
-/// @brief Set global Chop
+/// @brief Set global Chop (see datasheet)
 /// @param global_chop 
 void ADS131M0x::setGlobalChop(uint16_t global_chop)
 {
@@ -382,6 +478,10 @@ bool ADS131M0x::setInputChannelSelection(uint8_t channel, uint8_t input)
   return false;
 }
 
+/// @brief set offset calibration per channel
+/// @param channel 
+/// @param offset 
+/// @return 
 bool ADS131M0x::setChannelOffsetCalibration(uint8_t channel, int32_t offset)
 {
 
@@ -418,6 +518,10 @@ bool ADS131M0x::setChannelOffsetCalibration(uint8_t channel, int32_t offset)
   return false;
 }
 
+/// @brief set gain calibration per channel 
+/// @param channel 
+/// @param gain 
+/// @return 
 bool ADS131M0x::setChannelGainCalibration(uint8_t channel, uint32_t gain)
 {
 
@@ -453,6 +557,8 @@ bool ADS131M0x::setChannelGainCalibration(uint8_t channel, uint32_t gain)
   return false;
 }
 
+/// @brief hardware-pin test if data is ready 
+/// @return 
 bool ADS131M0x::isDataReady()
 {
   if (digitalRead(drdyPin) == HIGH)
@@ -462,7 +568,7 @@ bool ADS131M0x::isDataReady()
   return true;
 }
 
-/// @brief Read c0 
+/// @brief Read only CH0 fast
 /// @param  
 /// @return ch0 (int32)
 int32_t ADS131M0x::readfastCh0(void)
@@ -474,7 +580,7 @@ int32_t ADS131M0x::readfastCh0(void)
   adcOutput res;
 
   digitalWrite(csPin, LOW);
-  NOP();
+  //NOP();
   x = spiPort->transfer(0x00);
   x2 = spiPort->transfer(0x00);
   spiPort->transfer(0x00);
@@ -500,10 +606,11 @@ int32_t ADS131M0x::readfastCh0(void)
 
   spiPort->write16(0x00);
   spiPort->write(0x00);
+
   spiPort->write16(0x00);
   spiPort->write(0x00);
   
-  /*
+  /* slower
   spiPort->transfer(0x00);
   spiPort->transfer(0x00);
   spiPort->transfer(0x00);
@@ -518,7 +625,7 @@ int32_t ADS131M0x::readfastCh0(void)
   */
 
   //delay(1);
-  NOP();
+  //NOP();
   digitalWrite(csPin, HIGH);
 
   return val32Ch0;
@@ -536,7 +643,9 @@ adcOutput ADS131M0x::readADC(void)
   adcOutput res;
 
   digitalWrite(csPin, LOW);
+#ifndef NO_CS_DELAY
   delayMicroseconds(1);
+#endif
   x = spiPort->transfer(0x00);
   x2 = spiPort->transfer(0x00);
   spiPort->transfer(0x00);
@@ -557,16 +666,14 @@ adcOutput ADS131M0x::readADC(void)
     res.ch0 = aux;
   }
 
-  // schneller !!!
+  // faster!!!
   spiPort->transfer(0x00);
   spiPort->transfer(0x00);
   spiPort->transfer(0x00);
-  /* no CH1
   // read CH1 --------
   x = spiPort->transfer(0x00);
   x2 = spiPort->transfer(0x00);
   x3 = spiPort->transfer(0x00);
-
   aux = (((x << 16) | (x2 << 8) | x3) & 0x00FFFFFF);
   if (aux > 0x7FFFFF)
   {
@@ -576,7 +683,6 @@ adcOutput ADS131M0x::readADC(void)
   {
     res.ch1 = aux;
   }
-  */
   
 #ifndef IS_M02
   x = spiPort->transfer(0x00);
@@ -609,9 +715,9 @@ adcOutput ADS131M0x::readADC(void)
   spiPort->transfer(0x00);
   spiPort->transfer(0x00);
   spiPort->transfer(0x00);
-
+#ifndef NO_CS_DELAY
   delayMicroseconds(1);
+#endif
   digitalWrite(csPin, HIGH);
-
   return res;
 }
