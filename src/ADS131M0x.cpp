@@ -2,11 +2,9 @@
 #include "ADS131M0x.h"
 #include "SPI.h"
 
-
-
 #ifdef IS_M02
 #define DO_PRAGMA(x) _Pragma (#x)
-#define INFO(x) DO_PRAGMA(message ("\nHINWEIS: " #x))
+#define INFO(x) DO_PRAGMA(message ("\nREMARK: " #x))
 //INFO Version for ADS131M02
 #endif
 
