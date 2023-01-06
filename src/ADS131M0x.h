@@ -4,8 +4,11 @@
 #include "Arduino.h"
 #include "SPI.h"
 
-// !!! by JG !!!
+// define for 2-channel version ADS131M02
 #define IS_M02
+
+// no delay after CS-active at adc_read
+// #define NO_CS_DELAY 
 
 struct adcOutput
 {
@@ -138,7 +141,7 @@ struct adcOutput
 #define REGMASK_MODE_RX_CRC_EN 0x1000
 #define REGMASK_MODE_CRC_TYPE 0x0800
 #define REGMASK_MODE_RESET 0x0400
-#define REGMASK_MODE_WLENGTH 0x0300bool ADS131M04::setChannelPGA(uint8_t channel, uint8_t pga)
+#define REGMASK_MODE_WLENGTH 0x0300
 #define REGMASK_MODE_TIMEOUT 0x0010
 #define REGMASK_MODE_DRDY_SEL 0x000C
 #define REGMASK_MODE_DRDY_HiZ 0x0002
@@ -248,9 +251,13 @@ struct adcOutput
 #define SPI_MASTER_DUMMY16 0xFFFF
 #define SPI_MASTER_DUMMY32 0xFFFFFFFF
 
-// noch nicht getestet !!
-//#define MACROVALCALC(val,offset, factor, divisor) (((val-offset)*factor/divisor))
+// by JG: not testet !!
+#define MACROVALCALC(val,offset, factor, divisor) (((val-offset)*factor/divisor))
 
+/**
+ * @brief Arduino class for the TI ADS131M02 and ADS131M04 ADC-converter with SPI Interface
+ * 
+ */
 class ADS131M0x
 {
 public:
