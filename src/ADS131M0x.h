@@ -1,15 +1,24 @@
-#ifndef ADS131M04_h
-#define ADS131M04_h
+#ifndef ADS131M0x_h
+#define ADS131M0x_h
 
 #include "Arduino.h"
+#include "SPI.h"
+
+// define for 2-channel version ADS131M02
+#define IS_M02
+
+// no delay after CS-active at adc_read
+// #define NO_CS_DELAY 
 
 struct adcOutput
 {
   uint16_t status;
   int32_t ch0;
   int32_t ch1;
+#ifndef IS_M02
   int32_t ch2;
   int32_t ch3;
+#endif
 };
 
 #define DRDY_STATE_LOGIC_HIGH 0 // DEFAULS
@@ -50,11 +59,15 @@ struct adcOutput
 #define CMD_WAKEUP 0x0033
 #define CMD_LOCK 0x0555
 #define CMD_UNLOCK 0x0655
-#define CMD_READ_REG 0xA000 // 101a aaaa annn nnnn   a=adress  n=numero de registros-1
+#define CMD_READ_REG 0xA000 // 101a aaaa annn nnnn   a=adress  n=num  regis-1
 #define CMD_WRITE_REG 0x6000
 
 // Responses
+#ifdef IS_M02
+#define RSP_RESET_OK 0xFF22
+#else
 #define RSP_RESET_OK 0xFF24
+#endif
 #define RSP_RESET_NOK 0x0011
 
 // Registers Read Only
@@ -112,7 +125,11 @@ struct adcOutput
 #define REGMASK_STATUS_REGMAP 0x2000
 #define REGMASK_STATUS_CRC_ERR 0x1000
 #define REGMASK_STATUS_CRC_TYPE 0x0800
+#ifdef IS_M02
+#define REGMASK_STATUS_RESET 0x0200 
+#else
 #define REGMASK_STATUS_RESET 0x0400
+#endif
 #define REGMASK_STATUS_WLENGTH 0x0300
 #define REGMASK_STATUS_DRDY3 0x0008
 #define REGMASK_STATUS_DRDY2 0x0004
@@ -124,7 +141,7 @@ struct adcOutput
 #define REGMASK_MODE_RX_CRC_EN 0x1000
 #define REGMASK_MODE_CRC_TYPE 0x0800
 #define REGMASK_MODE_RESET 0x0400
-#define REGMASK_MODE_WLENGTH 0x0300bool ADS131M04::setChannelPGA(uint8_t channel, uint8_t pga)
+#define REGMASK_MODE_WLENGTH 0x0300
 #define REGMASK_MODE_TIMEOUT 0x0010
 #define REGMASK_MODE_DRDY_SEL 0x000C
 #define REGMASK_MODE_DRDY_HiZ 0x0002
@@ -234,19 +251,23 @@ struct adcOutput
 #define SPI_MASTER_DUMMY16 0xFFFF
 #define SPI_MASTER_DUMMY32 0xFFFFFFFF
 
-class ADS131M04
+// by JG: not testet !!
+#define MACROVALCALC(val,offset, factor, divisor) (((val-offset)*factor/divisor))
+
+/**
+ * @brief Arduino class for the TI ADS131M02 and ADS131M04 ADC-converter with SPI Interface
+ * 
+ */
+class ADS131M0x
 {
 public:
-  ADS131M04();
-  uint8_t ADS131M04_CS_PIN;
-  uint8_t ADS131M04_DRDY_PIN;
-  uint8_t ADS131M04_CLK_PIN;
-  uint8_t ADS131M04_MISO_PIN;
-  uint8_t ADS131M04_MOSI_PIN;
+  static int32_t val32Ch0;
+  ADS131M0x();
 
-  void begin(uint8_t clk_pin, uint8_t miso_pin, uint8_t mosi_pin, uint8_t cs_pin, uint8_t drdy_pin);
+  void begin(SPIClass *port, uint8_t clk_pin, uint8_t miso_pin, uint8_t mosi_pin, uint8_t cs_pin, uint8_t drdy_pin);
   int8_t isDataReadySoft(byte channel);
   bool isDataReady(void);
+  void reset(uint8_t reset_pin); 
   bool isResetStatus(void);
   bool isLockSPI(void);
   bool setDrdyFormat(uint8_t drdyFormat);
@@ -260,11 +281,22 @@ public:
   bool setChannelOffsetCalibration(uint8_t channel, int32_t offset);
   bool setChannelGainCalibration(uint8_t channel, uint32_t gain);
   bool setOsr(uint16_t osr);
+
+  uint16_t isResetOK(void);
   adcOutput readADC(void);
+  int32_t readfastCh0(void);
+
+  void setClockSpeed(uint32_t cspeed);
 
 private:
   uint8_t writeRegister(uint8_t address, uint16_t value);
   void writeRegisterMasked(uint8_t address, uint16_t value, uint16_t mask);
   uint16_t readRegister(uint8_t address);
+
+  uint8_t csPin;
+  uint8_t drdyPin;
+ 
+  SPIClass *spiPort;
+  uint32_t spiClockSpeed = 1000000; // default 1MHz SPI-clock
 };
 #endif

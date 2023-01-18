@@ -1,10 +1,10 @@
 {
-  "name": "ADS131M04",
-  "keywords": "SPI, ADC, sensor, ADS, 131M04, 131",
-  "description": "Arduino Library for ADC ADS131M04.",
+  "name": "ADS131M0x",
+  "keywords": "SPI, ADC, sensor, ADS, 131M02, 131M04, 131",
+  "description": "Arduino Library for ADC ADS131M02 and ADS131M04.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LucasEtchezuri/Arduino-ADS131M04.git"
+    "url": "https://github.com/Raibisch/ADS131M0x.git"
   },
   "version": "1.0.0", 
   "frameworks": "arduino",
