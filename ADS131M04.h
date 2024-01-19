@@ -10,6 +10,10 @@ struct adcOutput
   int32_t ch1;
   int32_t ch2;
   int32_t ch3;
+  int32_t ch4;
+  int32_t ch5;
+  int32_t ch6;
+  int32_t ch7;
 };
 
 #define DRDY_STATE_LOGIC_HIGH 0 // DEFAULS
@@ -64,7 +68,8 @@ struct adcOutput
 // Registers Global Settings across channels
 #define REG_MODE 0x02
 #define REG_CLOCK 0x03
-#define REG_GAIN 0x04
+#define REG_GAIN1 0x04
+#define REG_GAIN2 0x05
 #define REG_CFG 0x06
 #define THRSHLD_MSB 0x07
 #define THRSHLD_LSB 0x08
@@ -97,6 +102,34 @@ struct adcOutput
 #define REG_CH3_GCAL_MSB 0x1B
 #define REG_CH3_GCAL_LSB 0x1C
 
+// Registers Channel 4 Specific
+#define REG_CH4_CFG 0x1D
+#define REG_CH4_OCAL_MSB 0x1E
+#define REG_CH4_OCAL_LSB 0x1F
+#define REG_CH4_GCAL_MSB 0x20
+#define REG_CH4_GCAL_LSB 0x21
+
+// Registers Channel 5 Specific
+#define REG_CH5_CFG 0x22
+#define REG_CH5_OCAL_MSB 0x23
+#define REG_CH5_OCAL_LSB 0x24
+#define REG_CH5_GCAL_MSB 0x25
+#define REG_CH5_GCAL_LSB 0x26
+
+// Registers Channel 6 Specific
+#define REG_CH6_CFG 0x27
+#define REG_CH6_OCAL_MSB 0x28
+#define REG_CH6_OCAL_LSB 0x29
+#define REG_CH6_GCAL_MSB 0x2A
+#define REG_CH6_GCAL_LSB 0x2B
+
+// Registers Channel 7 Specific
+#define REG_CH7_CFG 0x18
+#define REG_CH7_OCAL_MSB 0x19
+#define REG_CH7_OCAL_LSB 0x1A
+#define REG_CH7_GCAL_MSB 0x1B
+#define REG_CH7_GCAL_LSB 0x1C
+
 // Registers MAP CRC
 #define REG_MAP_CRC 0x3E
 
@@ -114,6 +147,10 @@ struct adcOutput
 #define REGMASK_STATUS_CRC_TYPE 0x0800
 #define REGMASK_STATUS_RESET 0x0400
 #define REGMASK_STATUS_WLENGTH 0x0300
+#define REGMASK_STATUS_DRDY7 0x0008
+#define REGMASK_STATUS_DRDY6 0x0004
+#define REGMASK_STATUS_DRDY5 0x0002
+#define REGMASK_STATUS_DRDY4 0x0001
 #define REGMASK_STATUS_DRDY3 0x0008
 #define REGMASK_STATUS_DRDY2 0x0004
 #define REGMASK_STATUS_DRDY1 0x0002
@@ -131,6 +168,10 @@ struct adcOutput
 #define REGMASK_MODE_DRDY_FMT 0x0001
 
 // Mask Register CLOCK
+#define REGMASK_CLOCK_CH7_EN 0x8000
+#define REGMASK_CLOCK_CH6_EN 0x4000
+#define REGMASK_CLOCK_CH5_EN 0x2000
+#define REGMASK_CLOCK_CH4_EN 0x1000
 #define REGMASK_CLOCK_CH3_EN 0x0800
 #define REGMASK_CLOCK_CH2_EN 0x0400
 #define REGMASK_CLOCK_CH1_EN 0x0200
@@ -138,11 +179,19 @@ struct adcOutput
 #define REGMASK_CLOCK_OSR 0x001C
 #define REGMASK_CLOCK_PWR 0x0003
 
-// Mask Register GAIN
-#define REGMASK_GAIN_PGAGAIN3 0x7000
-#define REGMASK_GAIN_PGAGAIN2 0x0700
-#define REGMASK_GAIN_PGAGAIN1 0x0070
-#define REGMASK_GAIN_PGAGAIN0 0x0007
+// Mask Register GAIN1
+// Address 0x04 
+#define REGMASK_GAIN_PGAGAIN3 0x7000    //0111 0000 0000 0000
+#define REGMASK_GAIN_PGAGAIN2 0x0700    //0000 0111 0000 0000
+#define REGMASK_GAIN_PGAGAIN1 0x0070    //0000 0000 0111 0000
+#define REGMASK_GAIN_PGAGAIN0 0x0007    //0000 0000 0000 0111
+
+// Mask Register GAIN2
+// Address 0x05 
+#define REGMASK_GAIN_PGAGAIN7 0x7000    //0111 0000 0000 0000
+#define REGMASK_GAIN_PGAGAIN6 0x0700    //0000 0111 0000 0000
+#define REGMASK_GAIN_PGAGAIN5 0x0070    //0000 0000 0111 0000
+#define REGMASK_GAIN_PGAGAIN4 0x0007    //0000 0000 0000 0111
 
 // Mask Register CFG
 #define REGMASK_CFG_GC_DLY 0x1E00
@@ -163,9 +212,10 @@ struct adcOutput
 
 // Mask Register CHX_OCAL_LSB
 #define REGMASK_CHX_OCAL0_LSB 0xFF00
-
+#define REGMASK_CHX_OCAL1_LSB 0xFF00
 // Mask Register CHX_GCAL_LSB
 #define REGMASK_CHX_GCAL0_LSB 0xFF00
+#define REGMASK_CHX_GCAL1_LSB 0xFF00
 
 //   --------------------------------------------------------------------
 

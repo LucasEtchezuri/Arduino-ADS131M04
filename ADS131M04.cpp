@@ -176,6 +176,22 @@ int8_t ADS131M04::isDataReadySoft(byte channel)
   {
     return (readRegister(REG_STATUS) & REGMASK_STATUS_DRDY3);
   }
+  else if (channel == 4)
+  {
+    return (readRegister(REG_STATUS) & REGMASK_STATUS_DRDY4);
+  }
+  else if (channel == 5)
+  {
+    return (readRegister(REG_STATUS) & REGMASK_STATUS_DRDY5);
+  }
+  else if (channel == 6)
+  {
+    return (readRegister(REG_STATUS) & REGMASK_STATUS_DRDY6);
+  }
+  else if (channel == 7)
+  {
+    return (readRegister(REG_STATUS) & REGMASK_STATUS_DRDY7);
+  }
   else
   {
     return -1;
@@ -246,7 +262,7 @@ bool ADS131M04::setOsr(uint16_t osr)
 
 bool ADS131M04::setChannelEnable(uint8_t channel, uint16_t enable)
 {
-  if (channel > 3)
+  if (channel > 7)
   {
     return false;
   }
@@ -270,32 +286,72 @@ bool ADS131M04::setChannelEnable(uint8_t channel, uint16_t enable)
     writeRegisterMasked(REG_CLOCK, enable << 11, REGMASK_CLOCK_CH3_EN);
     return true;
   }
+  else if (channel == 4)
+  {
+    writeRegisterMasked(REG_CLOCK, enable << 12, REGMASK_CLOCK_CH4_EN);
+    return true;
+  }
+  else if (channel == 5)
+  {
+    writeRegisterMasked(REG_CLOCK, enable << 13, REGMASK_CLOCK_CH5_EN);
+    return true;
+  }
+  else if (channel == 6)
+  {
+    writeRegisterMasked(REG_CLOCK, enable << 14, REGMASK_CLOCK_CH6_EN);
+    return true;
+  }
+  else if (channel == 7)
+  {
+    writeRegisterMasked(REG_CLOCK, enable << 15, REGMASK_CLOCK_CH7_EN);
+    return true;
+  }
 }
 
 bool ADS131M04::setChannelPGA(uint8_t channel, uint16_t pga)
 {
-  if (channel > 3)
+  if (channel > 7)
   {
     return false;
   }
   if (channel == 0)
   {
-    writeRegisterMasked(REG_GAIN, pga, REGMASK_GAIN_PGAGAIN0);
+    writeRegisterMasked(REG_GAIN1, pga, REGMASK_GAIN_PGAGAIN0);
     return true;
   }
   else if (channel == 1)
   {
-    writeRegisterMasked(REG_GAIN, pga << 4, REGMASK_GAIN_PGAGAIN1);
+    writeRegisterMasked(REG_GAIN1, pga << 4, REGMASK_GAIN_PGAGAIN1);
     return true;
   }
   else if (channel == 2)
   {
-    writeRegisterMasked(REG_GAIN, pga << 8, REGMASK_GAIN_PGAGAIN2);
+    writeRegisterMasked(REG_GAIN1, pga << 8, REGMASK_GAIN_PGAGAIN2);
     return true;
   }
   else if (channel == 3)
   {
-    writeRegisterMasked(REG_GAIN, pga << 12, REGMASK_GAIN_PGAGAIN3);
+    writeRegisterMasked(REG_GAIN1, pga << 12, REGMASK_GAIN_PGAGAIN3);
+    return true;
+  }
+  else if (channel == 4)
+  {
+    writeRegisterMasked(REG_GAIN2, pga, REGMASK_GAIN_PGAGAIN4);
+    return true;
+  }
+  else if (channel == 5)
+  {
+    writeRegisterMasked(REG_GAIN2, pga << 4, REGMASK_GAIN_PGAGAIN5);
+    return true;
+  }
+  else if (channel == 6)
+  {
+    writeRegisterMasked(REG_GAIN2, pga << 8, REGMASK_GAIN_PGAGAIN6);
+    return true;
+  }
+  else if (channel == 7)
+  {
+    writeRegisterMasked(REG_GAIN2, pga << 12, REGMASK_GAIN_PGAGAIN7);
     return true;
   }
 }
@@ -312,7 +368,7 @@ void ADS131M04::setGlobalChopDelay(uint16_t delay)
 
 bool ADS131M04::setInputChannelSelection(uint8_t channel, uint8_t input)
 {
-  if (channel > 3)
+  if (channel > 7)
   {
     return false;
   }
@@ -336,6 +392,26 @@ bool ADS131M04::setInputChannelSelection(uint8_t channel, uint8_t input)
     writeRegisterMasked(REG_CH3_CFG, input, REGMASK_CHX_CFG_MUX);
     return true;
   }
+  else if (channel == 4)
+  {
+    writeRegisterMasked(REG_CH4_CFG, input, REGMASK_CHX_CFG_MUX);
+    return true;
+  }
+  else if (channel == 5)
+  {
+    writeRegisterMasked(REG_CH5_CFG, input, REGMASK_CHX_CFG_MUX);
+    return true;
+  }
+  else if (channel == 6)
+  {
+    writeRegisterMasked(REG_CH6_CFG, input, REGMASK_CHX_CFG_MUX);
+    return true;
+  }
+  else if (channel == 7)
+  {
+    writeRegisterMasked(REG_CH7_CFG, input, REGMASK_CHX_CFG_MUX);
+    return true;
+  }
 }
 
 bool ADS131M04::setChannelOffsetCalibration(uint8_t channel, int32_t offset)
@@ -344,7 +420,7 @@ bool ADS131M04::setChannelOffsetCalibration(uint8_t channel, int32_t offset)
   uint16_t MSB = offset >> 8;
   uint8_t LSB = offset;
 
-  if (channel > 3)
+  if (channel > 7)
   {
     return false;
   }
@@ -372,6 +448,30 @@ bool ADS131M04::setChannelOffsetCalibration(uint8_t channel, int32_t offset)
     writeRegisterMasked(REG_CH3_OCAL_LSB, LSB << 8 , REGMASK_CHX_OCAL0_LSB);
     return true;
   }
+  else if (channel == 4)
+  {
+    writeRegisterMasked(REG_CH4_OCAL_MSB, MSB, 0xFFFF);
+    writeRegisterMasked(REG_CH4_OCAL_LSB, LSB << 8, REGMASK_CHX_OCAL1_LSB);
+    return true;
+  }
+  else if (channel == 5)
+  {
+    writeRegisterMasked(REG_CH5_OCAL_MSB, MSB, 0xFFFF);
+    writeRegisterMasked(REG_CH5_OCAL_LSB, LSB << 8 , REGMASK_CHX_OCAL1_LSB);
+    return true;
+  }
+  else if (channel == 6)
+  {
+    writeRegisterMasked(REG_CH6_OCAL_MSB, MSB, 0xFFFF);
+    writeRegisterMasked(REG_CH6_OCAL_LSB, LSB << 8, REGMASK_CHX_OCAL1_LSB);
+    return true;
+  }
+  else if (channel == 7)
+  {
+    writeRegisterMasked(REG_CH7_OCAL_MSB, MSB, 0xFFFF);
+    writeRegisterMasked(REG_CH7_OCAL_LSB, LSB << 8 , REGMASK_CHX_OCAL1_LSB);
+    return true;
+  }
 }
 
 bool ADS131M04::setChannelGainCalibration(uint8_t channel, uint32_t gain)
@@ -380,7 +480,7 @@ bool ADS131M04::setChannelGainCalibration(uint8_t channel, uint32_t gain)
   uint16_t MSB = gain >> 8;
   uint8_t LSB = gain;
 
-  if (channel > 3)
+  if (channel > 7)
   {
     return false;
   }
@@ -406,6 +506,30 @@ bool ADS131M04::setChannelGainCalibration(uint8_t channel, uint32_t gain)
   {
     writeRegisterMasked(REG_CH3_GCAL_MSB, MSB, 0xFFFF);
     writeRegisterMasked(REG_CH3_GCAL_LSB, LSB << 8, REGMASK_CHX_GCAL0_LSB);
+    return true;
+  }
+  else if (channel == 4)
+  {
+    writeRegisterMasked(REG_CH4_GCAL_MSB, MSB, 0xFFFF);
+    writeRegisterMasked(REG_CH4_GCAL_LSB, LSB << 8, REGMASK_CHX_GCAL1_LSB);
+    return true;
+  }
+  else if (channel == 5)
+  {
+    writeRegisterMasked(REG_CH5_GCAL_MSB, MSB, 0xFFFF);
+    writeRegisterMasked(REG_CH5_GCAL_LSB, LSB << 8, REGMASK_CHX_GCAL1_LSB);
+    return true;
+  }
+  else if (channel == 6)
+  {
+    writeRegisterMasked(REG_CH6_GCAL_MSB, MSB, 0xFFFF);
+    writeRegisterMasked(REG_CH6_GCAL_LSB, LSB << 8, REGMASK_CHX_GCAL1_LSB);
+    return true;
+  }
+  else if (channel == 7)
+  {
+    writeRegisterMasked(REG_CH7_GCAL_MSB, MSB, 0xFFFF);
+    writeRegisterMasked(REG_CH7_GCAL_LSB, LSB << 8, REGMASK_CHX_GCAL1_LSB);
     return true;
   }
 }
@@ -490,6 +614,74 @@ adcOutput ADS131M04::readADC(void)
   else
   {
     res.ch3 = aux;
+  }
+  SPI.transfer(0x00);
+  SPI.transfer(0x00);
+  SPI.transfer(0x00);
+
+  x = SPI.transfer(0x00);
+  x2 = SPI.transfer(0x00);
+  x3 = SPI.transfer(0x00);
+
+  aux = (((x << 16) | (x2 << 8) | x3) & 0x00FFFFFF);
+  if (aux > 0x7FFFFF)
+  {
+    res.ch4 = ((~(aux)&0x00FFFFFF) + 1) * -1;
+  }
+  else
+  {
+    res.ch4 = aux;
+  }
+  SPI.transfer(0x00);
+  SPI.transfer(0x00);
+  SPI.transfer(0x00);
+
+  x = SPI.transfer(0x00);
+  x2 = SPI.transfer(0x00);
+  x3 = SPI.transfer(0x00);
+
+  aux = (((x << 16) | (x2 << 8) | x3) & 0x00FFFFFF);
+  if (aux > 0x7FFFFF)
+  {
+    res.ch5 = ((~(aux)&0x00FFFFFF) + 1) * -1;
+  }
+  else
+  {
+    res.ch5 = aux;
+  }
+  SPI.transfer(0x00);
+  SPI.transfer(0x00);
+  SPI.transfer(0x00);
+
+  x = SPI.transfer(0x00);
+  x2 = SPI.transfer(0x00);
+  x3 = SPI.transfer(0x00);
+
+  aux = (((x << 16) | (x2 << 8) | x3) & 0x00FFFFFF);
+  if (aux > 0x7FFFFF)
+  {
+    res.ch6 = ((~(aux)&0x00FFFFFF) + 1) * -1;
+  }
+  else
+  {
+    res.ch6 = aux;
+  }
+  SPI.transfer(0x00);
+  SPI.transfer(0x00);
+  SPI.transfer(0x00);
+
+  x = SPI.transfer(0x00);
+  x2 = SPI.transfer(0x00);
+  x3 = SPI.transfer(0x00);
+
+  aux = (((x << 16) | (x2 << 8) | x3) & 0x00FFFFFF);
+  if (aux > 0x7FFFFF)
+  {
+    res.ch7 = ((~(aux)&0x00FFFFFF) + 1) * -1;
+  }
+  else
+  {
+    res.ch7 = aux;
   }
   SPI.transfer(0x00);
   SPI.transfer(0x00);
